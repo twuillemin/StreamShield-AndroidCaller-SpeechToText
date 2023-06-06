@@ -1,25 +1,25 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml:2:13-83
-INJECTED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml:2:13-83
-INJECTED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml:2:13-83
+ADDED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml:2:13-83
+INJECTED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml:2:13-83
+INJECTED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml:2:13-83
 	package
-		INJECTED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml
-		ADDED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml:2:13-83
-		INJECTED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml
+		INJECTED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml
+		ADDED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml:2:13-83
+		INJECTED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml
 	xmlns:android
-		ADDED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml:2:23-81
+		ADDED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml:2:23-81
 uses-sdk
-INJECTED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml reason: use-sdk injection requested
-INJECTED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml
-INJECTED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml
-INJECTED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml
-INJECTED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml
+INJECTED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml reason: use-sdk injection requested
+INJECTED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml
+INJECTED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml
+INJECTED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml
+INJECTED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml
 	android:targetSdkVersion
-		INJECTED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml
-		ADDED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml
-		INJECTED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml
+		INJECTED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml
+		ADDED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml
+		INJECTED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml
 	android:minSdkVersion
-		INJECTED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml
-		ADDED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml
-		INJECTED from C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml
+		INJECTED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml
+		ADDED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml
+		INJECTED from C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml

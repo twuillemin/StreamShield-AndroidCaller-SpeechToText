@@ -14,7 +14,9 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import cy.adiutrix.micanalyzer.util.TextViewUpdaterHandler
+import com.ctminsights.streamshield.util.SpeechRecognizer
+import com.ctminsights.streamshield.util.TextViewUpdaterHandler
+import com.ctminsights.streamshield.util.WaveWriter
 import java.nio.ByteBuffer
 
 
@@ -35,7 +37,7 @@ class MainActivity : AppCompatActivity() {
     private var recordingThread: Thread? = null
     private var isRecording = false
 
-    private lateinit var speechRecognizer:SpeechRecognizer
+    private lateinit var speechRecognizer: SpeechRecognizer
     private lateinit var waveWriter: WaveWriter
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -143,7 +145,7 @@ class MainActivity : AppCompatActivity() {
         buffer: ByteBuffer,
     ) {
         val expectedSize = buffer.capacity()
-        val tmpBuffer = ByteArray(expectedSize);
+        val tmpBuffer = ByteArray(expectedSize)
 
         waveWriter.start()
         speechRecognizer.start()
@@ -154,17 +156,18 @@ class MainActivity : AppCompatActivity() {
             val bytesRead = recorder.read(buffer, expectedSize)
 
             if (bytesRead == expectedSize) {
+                // Grab a copy of the data without altering the buffer
                 buffer.mark()
                 buffer.get(tmpBuffer)
                 buffer.reset()
 
+                // Process the copied data
                 waveWriter.addBytes(tmpBuffer)
-
-                buffer.mark()
-                buffer.get(tmpBuffer)
-                buffer.reset()
-
                 speechRecognizer.addBytes(tmpBuffer)
+
+                // Simply consume the buffer in a similar way of sending it to the phone call
+                buffer.clear()
+
             } else {
                 Log.w(TAG, "Underflow read")
             }
@@ -190,6 +193,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("SameParameterValue")
     private fun getBitsPerSampleForEncoding(encoding: Int): Int {
         return when (encoding) {
             AudioFormat.ENCODING_PCM_16BIT -> 16
@@ -198,6 +202,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("SameParameterValue")
     private fun getNumberOfChannelsForEncoding(channels: Int): Int {
         return when (channels) {
             AudioFormat.CHANNEL_IN_STEREO -> 2

@@ -13,5 +13,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "MicAnalyzer"
+rootProject.name = "StreamShield-AndroidCaller-SpeechToText"
 include ':models', ':app'

@@ -3,6 +3,6 @@
 3    package="org.vosk.models" >
 4
 5    <uses-sdk android:minSdkVersion="29" />
-5-->C:\Users\thwui\AndroidStudioProjects\MicAnalyzer\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest2803911282837095514.xml
+5-->C:\Projects\CTM\StreamShield\StreamShield-AndroidCaller-SpeechToText\models\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest5138948429063377720.xml
 6
 7</manifest>

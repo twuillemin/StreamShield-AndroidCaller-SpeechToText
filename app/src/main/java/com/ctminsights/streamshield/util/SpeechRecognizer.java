@@ -1,7 +1,7 @@
-package cy.adiutrix.micanalyzer;
+package com.ctminsights.streamshield.util;
 
-import static cy.adiutrix.micanalyzer.util.TextViewUpdaterHandler.SPEECH_OUTPUT_ACTION_APPEND_LINE;
-import static cy.adiutrix.micanalyzer.util.TextViewUpdaterHandler.SPEECH_OUTPUT_ACTION_CLEAR;
+import static com.ctminsights.streamshield.util.TextViewUpdaterHandler.SPEECH_OUTPUT_ACTION_APPEND_LINE;
+import static com.ctminsights.streamshield.util.TextViewUpdaterHandler.SPEECH_OUTPUT_ACTION_CLEAR;
 
 import android.content.Context;
 import android.os.Handler;
@@ -9,6 +9,7 @@ import android.os.Message;
 import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.vosk.LibVosk;
@@ -21,19 +22,20 @@ import org.vosk.android.StorageService;
 
 import java.io.IOException;
 
-import cy.adiutrix.micanalyzer.util.ByteBufferedInputStream;
-
 public class SpeechRecognizer implements RecognitionListener {
 
     private static final String TAG = SpeechRecognizer.class.getSimpleName();
 
     private Model model;
     private SpeechStreamService speechStreamService;
-    private long byteCount;
     private final Handler outputUpdateHandler;
     private final ByteBufferedInputStream buffer;
     private final float sampleRate;
     private final float numberOfChannels;
+
+    // For the stereo to mono conversion
+    private long stereoToMonoByteCount = 0;
+    private byte[] stereoToMonoTemp = null;
 
     public SpeechRecognizer(
             @NotNull final Context context,
@@ -54,11 +56,15 @@ public class SpeechRecognizer implements RecognitionListener {
                 "model-en-us",
                 "model",
                 (model) -> this.model = model,
-                (exception) -> setErrorState("Failed to unpack the model" + exception.getMessage()));
+                (exception) -> setErrorState("Failed to unpack the model: " + exception.getMessage()));
     }
 
     @Override
-    public void onPartialResult(final String hypothesis) {
+    public void onPartialResult(final @Nullable String hypothesis) {
+        if (hypothesis == null) {
+            return;
+        }
+
         Log.i(TAG, "Partial result received: " + hypothesis);
 
         try {
@@ -76,7 +82,11 @@ public class SpeechRecognizer implements RecognitionListener {
     }
 
     @Override
-    public void onResult(final String hypothesis) {
+    public void onResult(final @Nullable String hypothesis) {
+        if (hypothesis == null) {
+            return;
+        }
+
         Log.i(TAG, "Result received: " + hypothesis);
 
         try {
@@ -94,7 +104,11 @@ public class SpeechRecognizer implements RecognitionListener {
     }
 
     @Override
-    public void onFinalResult(final String hypothesis) {
+    public void onFinalResult(final @Nullable String hypothesis) {
+        if (hypothesis == null) {
+            return;
+        }
+
         Log.i(TAG, "Final result received: " + hypothesis);
 
         try {
@@ -117,8 +131,16 @@ public class SpeechRecognizer implements RecognitionListener {
     }
 
     @Override
-    public void onError(final Exception e) {
-        setErrorState(e.getMessage());
+    public void onError(final @Nullable Exception e) {
+        if (e == null) {
+            return;
+        }
+
+        if (e.getMessage() == null) {
+            setErrorState(e.toString());
+        } else {
+            setErrorState(e.getMessage());
+        }
     }
 
     @Override
@@ -126,7 +148,7 @@ public class SpeechRecognizer implements RecognitionListener {
         appendLine("TIMEOUT");
     }
 
-    public void addBytes(byte[] bytes) {
+    public void addBytes(final @NotNull byte[] bytes) {
         if (numberOfChannels == 1) {
             addBytesFromMono(bytes);
         } else if (numberOfChannels == 2) {
@@ -136,26 +158,27 @@ public class SpeechRecognizer implements RecognitionListener {
         }
     }
 
-    private void addBytesFromMono(byte[] bytes) {
+    private void addBytesFromMono(final @NotNull byte[] bytes) {
         buffer.addBytes(bytes);
     }
 
-    private void addBytesFromStereo(byte[] bytes) {
-        final byte[] temp = new byte[bytes.length];
+    private synchronized void addBytesFromStereo(final @NotNull byte[] bytes) {
+        // Keep the same temp array if possible to avoid allocating to frequently
+        if (stereoToMonoTemp == null || stereoToMonoTemp.length < bytes.length) {
+            stereoToMonoTemp = new byte[bytes.length];
+        }
+
         int tempUsedSize = 0;
 
         for (byte aByte : bytes) {
-            if (byteCount % 4 == 0 || (byteCount - 1) % 4 == 0) {
-                temp[tempUsedSize] = aByte;
+            if (stereoToMonoByteCount % 4 == 0 || (stereoToMonoByteCount - 1) % 4 == 0) {
+                stereoToMonoTemp[tempUsedSize] = aByte;
                 tempUsedSize++;
             }
-            byteCount++;
+            stereoToMonoByteCount++;
         }
 
-        final byte[] resized = new byte[tempUsedSize];
-        System.arraycopy(temp, 0, resized, 0, tempUsedSize);
-
-        buffer.addBytes(resized);
+        buffer.addBytes(stereoToMonoTemp, 0, tempUsedSize);
     }
 
     public void stop() {
@@ -194,7 +217,7 @@ public class SpeechRecognizer implements RecognitionListener {
         clearOutput();
 
         if (this.model == null) {
-            appendLine(String.valueOf(R.string.recognition_model_not_loaded_already));
+            appendLine("Recognition model is not loaded already");
             return;
         }
 
@@ -202,8 +225,8 @@ public class SpeechRecognizer implements RecognitionListener {
             // Restart the buffer
             buffer.restart();
 
-            // Reinit the byte counter
-            byteCount = 0;
+            // Re-initialize the byte counter
+            stereoToMonoByteCount = 0;
 
             final Recognizer recognizer = new Recognizer(model, sampleRate);
             Log.i(TAG, "Recognizer created");
@@ -213,13 +236,13 @@ public class SpeechRecognizer implements RecognitionListener {
 
             speechStreamService.start(this);
             Log.i(TAG, "SpeechStreamService started");
-        } catch (IOException e) {
-            setErrorState(e.getMessage());
+        } catch (final IOException e) {
+            setErrorState(e.toString());
             speechStreamService = null;
         }
     }
 
-    private void setErrorState(String message) {
+    private void setErrorState(final @NotNull String message) {
         appendLine(message);
 
         if (speechStreamService != null) {

@@ -1,9 +1,11 @@
-package cy.adiutrix.micanalyzer.util;
+package com.ctminsights.streamshield.util;
 
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.widget.TextView;
+
+import org.jetbrains.annotations.NotNull;
 
 public class TextViewUpdaterHandler {
 
@@ -11,7 +13,7 @@ public class TextViewUpdaterHandler {
     public final static int SPEECH_OUTPUT_ACTION_APPEND = 1;
     public final static int SPEECH_OUTPUT_ACTION_APPEND_LINE = 2;
 
-    public static Handler createTextViewHandler(final TextView textView) {
+    public static Handler createTextViewHandler(final @NotNull TextView textView) {
         return new Handler(Looper.myLooper()) {
             public void handleMessage(Message msg) {
                 final int what = msg.what;

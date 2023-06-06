@@ -1,10 +1,14 @@
-package cy.adiutrix.micanalyzer.util;
+package com.ctminsights.streamshield.util;
 
 import android.util.Log;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 
+@SuppressWarnings("unused")
 public class ByteBufferedInputStream extends InputStream {
 
     private static final String TAG = ByteBufferedInputStream.class.getSimpleName();
@@ -36,12 +40,33 @@ public class ByteBufferedInputStream extends InputStream {
      * @param bytes the bytes to add.
      * @implNote This function is not synchronized itself as it synchronizes on internal data.
      */
-    public void addBytes(final byte[] bytes) {
+    public void addBytes(final @NotNull byte[] bytes) {
+        addBytes(bytes, 0, bytes.length);
+    }
+
+    /**
+     * Add a bytes array to the buffer.
+     *
+     * @param bytes  the bytes to add.
+     * @param srcPos the starting position in the bytes to  add.
+     * @param length the number of bytes to add.
+     * @implNote This function is not synchronized itself as it synchronizes on internal data.
+     */
+    public void addBytes(final @NotNull byte[] bytes, int srcPos, int length) {
+        if (srcPos + length > bytes.length) {
+            final String msg = String.format(Locale.getDefault(), "Unable to add %d bytes from index %d as source is only %d len", length, srcPos, bytes.length);
+            throw new IndexOutOfBoundsException(msg);
+        }
+
+        if (length == 0) {
+            return;
+        }
+
         // Buffer is modified, so lock on it
         synchronized (bufferAccessMutex) {
 
             // If needed, extend the buffer
-            final int sizeNeeded = writingPosition + bytes.length;
+            final int sizeNeeded = writingPosition + length;
             if (buffer.length <= sizeNeeded) {
                 // Compute the new size to allocate, double current for low value, otherwise increments by 50 kilobytes
                 int futureSize = buffer.length;
@@ -62,10 +87,10 @@ public class ByteBufferedInputStream extends InputStream {
             }
 
             // Copy the data to the buffer
-            System.arraycopy(bytes, 0, buffer, writingPosition, bytes.length);
-            writingPosition = writingPosition + bytes.length;
+            System.arraycopy(bytes, srcPos, buffer, writingPosition, length);
+            writingPosition = writingPosition + length;
 
-            //Log.d(TAG, String.format("Added %d bytes, buffer size is now: %d", bytes.length, getBufferSize()));
+            //Log.d(TAG, String.format("Added %d bytes, buffer size is now: %d", length, getBufferSize()));
         }
 
         // Signal data are available. As data were just added we can always wake up the
@@ -75,6 +100,7 @@ public class ByteBufferedInputStream extends InputStream {
                 monitor.notify();
             }
         }
+
     }
 
     /**
@@ -193,7 +219,7 @@ public class ByteBufferedInputStream extends InputStream {
      *                                   <code>b.length - off</code>
      * @see InputStream#read()
      */
-    public int read(byte[] b, int off, int len) throws IOException {
+    public int read(final @NotNull byte[] b, int off, int len) throws IOException {
         if (closed) {
             throw new IOException("Stream is closed");
         }
@@ -222,7 +248,7 @@ public class ByteBufferedInputStream extends InputStream {
      * Allows to define that the end of stream has been reached without actually closing the stream.
      * This allows client to receive a proper -1 instead of an exception
      */
-    public void setEndOfStreamReached(){
+    public void setEndOfStreamReached() {
         // When stream is finished, inform all the waiting threads that are blocked.
         this.endOfStreamReached = true;
 
@@ -231,11 +257,21 @@ public class ByteBufferedInputStream extends InputStream {
         }
     }
 
+    /**
+     * Get the size of the allocated underlying buffer.
+     *
+     * @return the actual size of the allocated buffer.
+     */
     public int getBufferSize() {
         return buffer.length;
     }
 
-    public byte[] getBufferedData() {
+    /**
+     * Return a copy of the available data. The buffer is not modified.
+     *
+     * @return a copy of the available data.
+     */
+    public @NotNull byte[] getBufferedData() {
         final byte[] copy;
 
         // Avoid update during copy
@@ -248,6 +284,10 @@ public class ByteBufferedInputStream extends InputStream {
         return copy;
     }
 
+    /**
+     * Set the buffer in its initial state. Reading and Writing are reset to 0, the buffer is marked as non closed or ended and can
+     * then be re-used immediately.
+     */
     public void restart() {
         synchronized (bufferAccessMutex) {
             writingPosition = 0;

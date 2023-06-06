@@ -1,4 +1,4 @@
-package cy.adiutrix.micanalyzer;
+package com.ctminsights.streamshield.util;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -10,8 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import cy.adiutrix.micanalyzer.util.ByteBufferedInputStream;
 
 public class WaveWriter {
     private static final String TAG = WaveWriter.class.getSimpleName();
@@ -40,7 +38,7 @@ public class WaveWriter {
         isRunning = false;
     }
 
-    public void addBytes(byte[] bytes) {
+    public void addBytes(final @NotNull byte[] bytes) {
         buffer.addBytes(bytes);
     }
 
