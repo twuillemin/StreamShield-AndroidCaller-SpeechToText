@@ -22,7 +22,7 @@ public class ByteBufferedInputStream extends InputStream {
     private int writingPosition = 0;
 
     // The monitor to unlock thread waiting for reading when data is available
-    static final Object monitor = new Object();
+    private final Object monitor = new Object();
 
     // Indicate that the stream is finished
     private boolean endOfStreamReached = false;
@@ -100,7 +100,6 @@ public class ByteBufferedInputStream extends InputStream {
                 monitor.notify();
             }
         }
-
     }
 
     /**

@@ -17,6 +17,7 @@ import androidx.core.app.ActivityCompat
 import com.ctminsights.streamshield.util.SpeechRecognizer
 import com.ctminsights.streamshield.util.TextViewUpdaterHandler
 import com.ctminsights.streamshield.util.WaveWriter
+import com.ctminsights.streamshield.util.WordEmitterTextViewUpdater
 import java.nio.ByteBuffer
 
 
@@ -38,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     private var isRecording = false
 
     private lateinit var speechRecognizer: SpeechRecognizer
+    private lateinit var wordEmitter: WordEmitterTextViewUpdater
     private lateinit var waveWriter: WaveWriter
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +52,8 @@ class MainActivity : AppCompatActivity() {
 
         val textView = findViewById<TextView>(R.id.textView)
         val textViewUpdaterHandler = TextViewUpdaterHandler.createTextViewHandler(textView)
-        speechRecognizer = SpeechRecognizer(this, textViewUpdaterHandler, RECORDER_SAMPLE_RATE, numberOfChannels)
+        wordEmitter = WordEmitterTextViewUpdater(textViewUpdaterHandler)
+        speechRecognizer = SpeechRecognizer(this, wordEmitter, RECORDER_SAMPLE_RATE, numberOfChannels)
 
         setButtonHandlers()
         enableButtons(false)
@@ -147,6 +150,7 @@ class MainActivity : AppCompatActivity() {
         val expectedSize = buffer.capacity()
         val tmpBuffer = ByteArray(expectedSize)
 
+        wordEmitter.start()
         waveWriter.start()
         speechRecognizer.start()
 
@@ -175,6 +179,8 @@ class MainActivity : AppCompatActivity() {
 
         waveWriter.stop()
         speechRecognizer.stop()
+        wordEmitter.stop()
+
 
         recorder.stop()
         recorder.release()

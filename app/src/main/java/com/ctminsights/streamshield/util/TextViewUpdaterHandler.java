@@ -29,7 +29,7 @@ public class TextViewUpdaterHandler {
                     }
                     case SPEECH_OUTPUT_ACTION_APPEND_LINE: {
                         final String txt = msg.obj.toString();
-                        textView.append(txt + "\n");
+                        textView.append("\n" + txt);
                         break;
                     }
                 }

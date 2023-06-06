@@ -1,11 +1,6 @@
 package com.ctminsights.streamshield.util;
 
-import static com.ctminsights.streamshield.util.TextViewUpdaterHandler.SPEECH_OUTPUT_ACTION_APPEND_LINE;
-import static com.ctminsights.streamshield.util.TextViewUpdaterHandler.SPEECH_OUTPUT_ACTION_CLEAR;
-
 import android.content.Context;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +23,7 @@ public class SpeechRecognizer implements RecognitionListener {
 
     private Model model;
     private SpeechStreamService speechStreamService;
-    private final Handler outputUpdateHandler;
+    private final IWordEmitter wordEmitter;
     private final ByteBufferedInputStream buffer;
     private final float sampleRate;
     private final float numberOfChannels;
@@ -39,11 +34,11 @@ public class SpeechRecognizer implements RecognitionListener {
 
     public SpeechRecognizer(
             @NotNull final Context context,
-            @NotNull final Handler outputUpdateHandler,
+            @NotNull final IWordEmitter wordEmitter,
             final int sampleRate,
             final int numberOfChannels
     ) {
-        this.outputUpdateHandler = outputUpdateHandler;
+        this.wordEmitter = wordEmitter;
         this.buffer = new ByteBufferedInputStream(1024);
         this.sampleRate = (float) sampleRate;
         this.numberOfChannels = numberOfChannels;
@@ -72,9 +67,7 @@ public class SpeechRecognizer implements RecognitionListener {
             final Object hypothesisRawValue = jObject.get("partial");
             if (hypothesisRawValue instanceof String) {
                 final String hypothesisValue = (String) hypothesisRawValue;
-                if (!hypothesisValue.isBlank()) {
-                    append("/" + hypothesisValue);
-                }
+                wordEmitter.putPartialResult(hypothesisValue);
             }
         } catch (JSONException e) {
             Log.e(TAG, "Unable to read partial result", e);
@@ -95,7 +88,8 @@ public class SpeechRecognizer implements RecognitionListener {
             if (hypothesisRawValue instanceof String) {
                 final String hypothesisValue = (String) hypothesisRawValue;
                 if (!hypothesisValue.isBlank()) {
-                    appendLine("/\n=>" + hypothesisValue);
+                    Log.d(TAG, "Result received: " + hypothesisValue);
+                    wordEmitter.endOfSentence();
                 }
             }
         } catch (JSONException e) {
@@ -117,7 +111,8 @@ public class SpeechRecognizer implements RecognitionListener {
             if (hypothesisRawValue instanceof String) {
                 final String hypothesisValue = (String) hypothesisRawValue;
                 if (!hypothesisValue.isBlank()) {
-                    appendLine("\n=====>" + hypothesisValue);
+                    Log.d(TAG, "Final result received: " + hypothesisValue);
+                    wordEmitter.endOfSentence();
                 }
             }
         } catch (JSONException e) {
@@ -145,7 +140,7 @@ public class SpeechRecognizer implements RecognitionListener {
 
     @Override
     public void onTimeout() {
-        appendLine("TIMEOUT");
+        wordEmitter.signalError("Timeout");
     }
 
     public void addBytes(final @NotNull byte[] bytes) {
@@ -214,10 +209,10 @@ public class SpeechRecognizer implements RecognitionListener {
             throw new RuntimeException("The SpeechRecognizer instance has already been started");
         }
 
-        clearOutput();
+        wordEmitter.reset();
 
         if (this.model == null) {
-            appendLine("Recognition model is not loaded already");
+            wordEmitter.signalError("Recognition model is not loaded already");
             return;
         }
 
@@ -243,7 +238,7 @@ public class SpeechRecognizer implements RecognitionListener {
     }
 
     private void setErrorState(final @NotNull String message) {
-        appendLine(message);
+        wordEmitter.signalError(message);
 
         if (speechStreamService != null) {
             speechStreamService.stop();
@@ -251,27 +246,4 @@ public class SpeechRecognizer implements RecognitionListener {
         }
     }
 
-    private void clearOutput() {
-        this.outputUpdateHandler.sendEmptyMessage(SPEECH_OUTPUT_ACTION_CLEAR);
-    }
-
-    private void append(final @NotNull String text) {
-        this.outputUpdateHandler.sendMessage(
-                Message.obtain(
-                        this.outputUpdateHandler,
-                        SPEECH_OUTPUT_ACTION_APPEND_LINE,
-                        text
-                )
-        );
-    }
-
-    private void appendLine(final @NotNull String text) {
-        this.outputUpdateHandler.sendMessage(
-                Message.obtain(
-                        this.outputUpdateHandler,
-                        SPEECH_OUTPUT_ACTION_APPEND_LINE,
-                        text
-                )
-        );
-    }
 }
