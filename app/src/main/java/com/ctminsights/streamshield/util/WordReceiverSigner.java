@@ -1,7 +1,10 @@
 package com.ctminsights.streamshield.util;
 
+import com.joom.xxhash.XxHash64;
+
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -69,7 +72,7 @@ public class WordReceiverSigner extends WordReceiver {
 
         // Emit the hash
         final String toHash = String.format("%s %s %s", word1, word2, word3);
-        final int hash = toHash.hashCode();
+        final long hash = XxHash64.hashForArray(toHash.getBytes(StandardCharsets.UTF_8));
 
         // TODO send the hash somewhere
 

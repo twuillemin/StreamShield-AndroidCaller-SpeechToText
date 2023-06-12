@@ -45,6 +45,9 @@ dependencies {
     implementation 'net.java.dev.jna:jna:5.13.0@aar'
     implementation project(':models')
 
+    // Hash
+    implementation 'com.joom.xxhash:xxhash-android:1.2.0'
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
