@@ -17,7 +17,9 @@ import androidx.core.app.ActivityCompat
 import com.ctminsights.streamshield.util.SpeechRecognizer
 import com.ctminsights.streamshield.util.TextViewUpdaterHandler
 import com.ctminsights.streamshield.util.WaveWriter
-import com.ctminsights.streamshield.util.WordEmitterTextViewUpdater
+import com.ctminsights.streamshield.util.WordReceiverDebouncer
+import com.ctminsights.streamshield.util.WordReceiverSigner
+import com.ctminsights.streamshield.util.WordReceiverTextViewUpdater
 import java.nio.ByteBuffer
 
 
@@ -39,7 +41,9 @@ class MainActivity : AppCompatActivity() {
     private var isRecording = false
 
     private lateinit var speechRecognizer: SpeechRecognizer
-    private lateinit var wordEmitter: WordEmitterTextViewUpdater
+    private lateinit var wordReceiverDebouncer: WordReceiverDebouncer
+    private lateinit var wordReceiverSigner: WordReceiverSigner
+    private lateinit var wordReceiverTextViewUpdater: WordReceiverTextViewUpdater
     private lateinit var waveWriter: WaveWriter
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,8 +56,12 @@ class MainActivity : AppCompatActivity() {
 
         val textView = findViewById<TextView>(R.id.textView)
         val textViewUpdaterHandler = TextViewUpdaterHandler.createTextViewHandler(textView)
-        wordEmitter = WordEmitterTextViewUpdater(textViewUpdaterHandler)
-        speechRecognizer = SpeechRecognizer(this, wordEmitter, RECORDER_SAMPLE_RATE, numberOfChannels)
+        wordReceiverTextViewUpdater = WordReceiverTextViewUpdater(textViewUpdaterHandler)
+
+        wordReceiverSigner = WordReceiverSigner(wordReceiverTextViewUpdater)
+        wordReceiverDebouncer = WordReceiverDebouncer(wordReceiverSigner)
+
+        speechRecognizer = SpeechRecognizer(this, wordReceiverDebouncer, RECORDER_SAMPLE_RATE, numberOfChannels)
 
         setButtonHandlers()
         enableButtons(false)
@@ -130,7 +138,6 @@ class MainActivity : AppCompatActivity() {
         val bytesPerFrame = numberOfChannels * bitsPerSample / 8
         val framesPerBuffer = RECORDER_SAMPLE_RATE / (1000 / BUFFER_DURATION_MS)
         val captureBufferSize = bytesPerFrame * framesPerBuffer
-        //val buffer = ByteArray(captureBufferSize)
         val buffer = ByteBuffer.allocateDirect(captureBufferSize)
 
         val thread = Thread({ exploitAudioData(audioRecorder, buffer) }, "AudioRecorder Thread")
@@ -150,7 +157,9 @@ class MainActivity : AppCompatActivity() {
         val expectedSize = buffer.capacity()
         val tmpBuffer = ByteArray(expectedSize)
 
-        wordEmitter.start()
+        wordReceiverTextViewUpdater.start()
+        wordReceiverSigner.start()
+        wordReceiverDebouncer.start()
         waveWriter.start()
         speechRecognizer.start()
 
@@ -179,8 +188,9 @@ class MainActivity : AppCompatActivity() {
 
         waveWriter.stop()
         speechRecognizer.stop()
-        wordEmitter.stop()
-
+        wordReceiverDebouncer.stop()
+        wordReceiverSigner.stop()
+        wordReceiverTextViewUpdater.stop()
 
         recorder.stop()
         recorder.release()

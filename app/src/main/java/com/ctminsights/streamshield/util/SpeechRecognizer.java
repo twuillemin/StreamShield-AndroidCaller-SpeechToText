@@ -23,7 +23,7 @@ public class SpeechRecognizer implements RecognitionListener {
 
     private Model model;
     private SpeechStreamService speechStreamService;
-    private final IWordEmitter wordEmitter;
+    private final WordReceiver wordReceiver;
     private final ByteBufferedInputStream buffer;
     private final float sampleRate;
     private final float numberOfChannels;
@@ -34,11 +34,11 @@ public class SpeechRecognizer implements RecognitionListener {
 
     public SpeechRecognizer(
             @NotNull final Context context,
-            @NotNull final IWordEmitter wordEmitter,
+            @NotNull final WordReceiver wordReceiver,
             final int sampleRate,
             final int numberOfChannels
     ) {
-        this.wordEmitter = wordEmitter;
+        this.wordReceiver = wordReceiver;
         this.buffer = new ByteBufferedInputStream(1024);
         this.sampleRate = (float) sampleRate;
         this.numberOfChannels = numberOfChannels;
@@ -60,14 +60,16 @@ public class SpeechRecognizer implements RecognitionListener {
             return;
         }
 
-        Log.i(TAG, "Partial result received: " + hypothesis);
-
         try {
             JSONObject jObject = new JSONObject(hypothesis);
             final Object hypothesisRawValue = jObject.get("partial");
             if (hypothesisRawValue instanceof String) {
                 final String hypothesisValue = (String) hypothesisRawValue;
-                wordEmitter.putPartialResult(hypothesisValue);
+
+                if (!hypothesisValue.isBlank()) {
+                    Log.d(TAG, "Partial result received: " + hypothesis.replace('\n', ' '));
+                    wordReceiver.putText(hypothesisValue);
+                }
             }
         } catch (JSONException e) {
             Log.e(TAG, "Unable to read partial result", e);
@@ -80,16 +82,15 @@ public class SpeechRecognizer implements RecognitionListener {
             return;
         }
 
-        Log.i(TAG, "Result received: " + hypothesis);
-
         try {
             JSONObject jObject = new JSONObject(hypothesis);
             final Object hypothesisRawValue = jObject.get("text");
             if (hypothesisRawValue instanceof String) {
                 final String hypothesisValue = (String) hypothesisRawValue;
+
                 if (!hypothesisValue.isBlank()) {
-                    Log.d(TAG, "Result received: " + hypothesisValue);
-                    wordEmitter.endOfSentence();
+                    Log.d(TAG, "Result received: " + hypothesisValue.replace('\n', ' '));
+                    wordReceiver.signalEndOfSentence();
                 }
             }
         } catch (JSONException e) {
@@ -103,16 +104,14 @@ public class SpeechRecognizer implements RecognitionListener {
             return;
         }
 
-        Log.i(TAG, "Final result received: " + hypothesis);
-
         try {
             JSONObject jObject = new JSONObject(hypothesis);
             final Object hypothesisRawValue = jObject.get("text");
             if (hypothesisRawValue instanceof String) {
                 final String hypothesisValue = (String) hypothesisRawValue;
                 if (!hypothesisValue.isBlank()) {
-                    Log.d(TAG, "Final result received: " + hypothesisValue);
-                    wordEmitter.endOfSentence();
+                    Log.d(TAG, "Final result received: " + hypothesisValue.replace('\n', ' '));
+                    wordReceiver.signalEndOfSentence();
                 }
             }
         } catch (JSONException e) {
@@ -140,7 +139,7 @@ public class SpeechRecognizer implements RecognitionListener {
 
     @Override
     public void onTimeout() {
-        wordEmitter.signalError("Timeout");
+        wordReceiver.signalError("Timeout");
     }
 
     public void addBytes(final @NotNull byte[] bytes) {
@@ -209,10 +208,10 @@ public class SpeechRecognizer implements RecognitionListener {
             throw new RuntimeException("The SpeechRecognizer instance has already been started");
         }
 
-        wordEmitter.reset();
+        wordReceiver.reset();
 
         if (this.model == null) {
-            wordEmitter.signalError("Recognition model is not loaded already");
+            wordReceiver.signalError("Recognition model is not loaded already");
             return;
         }
 
@@ -238,12 +237,11 @@ public class SpeechRecognizer implements RecognitionListener {
     }
 
     private void setErrorState(final @NotNull String message) {
-        wordEmitter.signalError(message);
+        wordReceiver.signalError(message);
 
         if (speechStreamService != null) {
             speechStreamService.stop();
             speechStreamService = null;
         }
     }
-
 }
